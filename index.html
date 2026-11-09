@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arena Matematik LIVE</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#17132b;color:white;font-family:Arial;text-align:center}
+main{max-width:480px;margin:auto;padding:12px}
+header{background:#ffe94a;color:#17132b;border:3px solid white;border-radius:14px;padding:14px;font-size:23px;font-weight:bold}
+.card{background:#fff;color:#17132b;border:3px solid #ff4e8a;border-radius:15px;padding:14px;margin-top:12px}
+.monster{font-size:65px}
+.hp{font-weight:bold}
+.bar{height:18px;background:#ddd;border-radius:20px;overflow:hidden}
+#health{height:100%;width:100%;background:#ff4e8a}
+.question{font-size:48px;font-weight:bold;margin:20px 0}
+button{border:0;border-radius:12px;padding:13px 10px;font-weight:bold;font-size:15px;margin:4px;cursor:pointer}
+input{width:65%;padding:13px;border:2px solid #777;border-radius:10px;font-size:20px;text-align:center}
+.cyan{background:#24e6f0;color:#17132b}
+.yellow{background:#ffe94a;color:#17132b}
+.pink{background:#ff4e8a;color:white}
+.dark{background:#080711;color:white}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.grid button{background:#fff;color:#17132b;border:2px solid #17132b}
+.columns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.list{background:white;color:#17132b;border-radius:12px;padding:9px;min-height:120px;font-size:12px;text-align:left}
+.item{padding:6px;border-bottom:1px solid #ddd}
+h3{font-size:14px;margin:5px}
+</style>
+</head>
+<body>
+<main>
+<header>🧮 ARENA MATEMATIK LIVE!</header>
+
+<div class="card">
+<div class="monster">👾</div>
+<h2>BOSS SLIME</h2>
+<div class="hp">HP: <span id="hp">1000</span> / 1000</div>
+<div class="bar"><div id="health"></div></div>
+<p id="level">LEVEL 1</p>
+</div>
+
+<div class="card">
+<h3>⚡ SOALAN MATEMATIK</h3>
+<div class="question" id="question">3 × 5 = ?</div>
+<input id="answer" type="number" placeholder="Jawapan">
+<br>
+<button class="cyan" onclick="checkAnswer()">HANTAR JAWAPAN</button>
+<p id="message">Jawab betul untuk menyerang boss!</p>
+<button class="yellow" onclick="newQuestion()">SOALAN SETERUSNYA</button>
+</div>
+
+<div class="card">
+<h3>🎁 SIMULASI GIFT</h3>
+<div class="grid">
+<button onclick="gift(100,'Rose')">🌹 Rose<br>100</button>
+<button onclick="gift(250,'Donut')">🍩 Donut<br>250</button>
+<button onclick="gift(500,'Heart')">💝 Heart<br>500</button>
+</div>
+<p style="font-size:11px">Gift ini hanya simulasi, bukan sambungan TikTok.</p>
+</div>
+
+<div class="columns">
+<div class="card">
+<h3>💬 TEBAKAN CHAT</h3>
+<div class="list" id="chat">Selamat bermain!</div>
+</div>
+<div class="card">
+<h3>🏆 TOP 10</h3>
+<div class="list" id="ranking">Belum ada pemain</div>
+</div>
+</div>
+
+<div class="card">
+<h3>⏳ MASA PERMAINAN</h3>
+<div style="font-size:30px;font-weight:bold" id="timer">02:00</div>
+<button class="pink" onclick="resetGame()">RESET GAME</button>
+</div>
+</main>
+
+<script>
+let hp=1000,level=1,answer=15,seconds=120;
+let scores={};
+
+function newQuestion(){
+ let a,b,op=Math.floor(Math.random()*4);
+ if(op===0){a=1+Math.floor(Math.random()*20);b=1+Math.floor(Math.random()*20);answer=a+b;questionText=a+" + "+b+" = ?"}
+ if(op===1){a=10+Math.floor(Math.random()*30);b=1+Math.floor(Math.random()*a);answer=a-b;questionText=a+" - "+b+" = ?"}
+ if(op===2){a=2+Math.floor(Math.random()*10);b=2+Math.floor(Math.random()*10);answer=a*b;questionText=a+" × "+b+" = ?"}
+ if(op===3){b=2+Math.floor(Math.random()*9);answer=2+Math.floor(Math.random()*10);a=b*answer;questionText=a+" ÷ "+b+" = ?"}
+ document.getElementById("question").textContent=questionText;
+ document.getElementById("answer").value="";
+}
+
+function attack(name,damage,points){
+ hp=Math.max(0,hp-damage);
+ document.getElementById("hp").textContent=hp;
+ document.getElementById("health").style.width=(hp/1000*100)+"%";
+ scores[name]=(scores[name]||0)+points;
+ updateRanking();
+ if(hp===0){
+  level++;
+  hp=1000;
+  document.getElementById("hp").textContent=hp;
+  document.getElementById("health").style.width="100%";
+  document.getElementById("level").textContent="LEVEL "+level;
+  say("🎉 BOSS KALAH! BOSS BAHARU MUNCUL!");
+ }
+}
+
+function checkAnswer(){
+ let v=document.getElementById("answer").value;
+ if(v===""){say("Masukkan jawapan dahulu!");return}
+ if(Number(v)===answer){
+  attack("Pemain",100,10);
+  say("✅ BETUL! +10 MATA");
+  newQuestion();
+ }else{
+  say("❌ Jawapan salah. Cuba lagi!");
+ }
+}
+
+function gift(points,name){
+ attack("Gift "+name,points,points);
+ say("🎁 "+name+" menyerang boss!");
+}
+
+function say(text){
+ document.getElementById("message").textContent=text;
+ let c=document.getElementById("chat");
+ let d=document.createElement("div");
+ d.className="item";
+ d.textContent=text;
+ c.prepend(d);
+ while(c.children.length>8)c.lastChild.remove();
+}
+
+function updateRanking(){
+ let arr=Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,10);
+ document.getElementById("ranking").innerHTML=
+ arr.map((x,i)=>"<div class='item'>"+(i+1)+". "+x[0]+" — "+x[1]+" PTS</div>").join("");
+}
+
+function resetGame(){
+ hp=1000;level=1;seconds=120;scores={};
+ document.getElementById("hp").textContent=hp;
+ document.getElementById("health").style.width="100%";
+ document.getElementById("level").textContent="LEVEL 1";
+ document.getElementById("ranking").textContent="Belum ada pemain";
+ document.getElementById("chat").textContent="Permainan bermula!";
+ newQuestion();
+ say("Permainan telah direset!");
+}
+
+document.getElementById("answer").addEventListener("keydown",function(e){
+ if(e.key==="Enter")checkAnswer();
+});
+
+setInterval(function(){
+ if(seconds>0)seconds--;
+ let m=String(Math.floor(seconds/60)).padStart(2,"0");
+ let s=String(seconds%60).padStart(2,"0");
+ document.getElementById("timer").textContent=m+":"+s;
+},1000);
+
+newQuestion();
+</script>
+</body>
+</html>
